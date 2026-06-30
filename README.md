@@ -2,6 +2,10 @@
 
 A Streamlit dashboard for marketing performance analysis, customer segmentation, campaign ROI diagnostics, CAC/LTV review, payback analysis, and budget reallocation recommendations.
 
+## Live Demo
+
+[Open the Streamlit app](https://campaign-roi-dashboard.streamlit.app/)
+
 ## What It Does
 
 - Scores campaigns and customer segments on a 0-100 marketing quality scale
