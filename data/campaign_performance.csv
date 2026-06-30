@@ -1,0 +1,37 @@
+Month,Segment,Channel,Campaign,Spend,Impressions,Clicks,Leads,MQLs,Customers,Revenue,Gross_Margin,Retention_Rate
+2026-01-01,Enterprise SaaS,LinkedIn,Enterprise CFO Webinar,18000,210000,7350,690,255,48,154000,0.78,0.91
+2026-01-01,Mid-Market SaaS,Google Search,CRM Migration Search,14500,180000,9000,760,240,44,98000,0.74,0.86
+2026-01-01,SMB Services,Meta,Operations Template Download,9000,420000,12600,870,175,38,41000,0.66,0.72
+2026-01-01,Ecommerce Brands,TikTok,Retention Playbook,11000,510000,15300,930,210,34,52000,0.62,0.69
+2026-01-01,Healthcare Operators,LinkedIn,Clinic Efficiency Report,15500,160000,4800,420,170,29,87000,0.76,0.88
+2026-01-01,Financial Services,Google Search,Compliance Analytics Search,17000,135000,6750,510,190,31,116000,0.79,0.90
+2026-02-01,Enterprise SaaS,LinkedIn,Enterprise CFO Webinar,19500,225000,8100,735,282,54,171000,0.78,0.91
+2026-02-01,Mid-Market SaaS,Google Search,CRM Migration Search,15200,188000,9400,812,260,48,106000,0.74,0.86
+2026-02-01,SMB Services,Meta,Operations Template Download,9600,450000,13950,915,182,39,42500,0.66,0.72
+2026-02-01,Ecommerce Brands,TikTok,Retention Playbook,12200,540000,16740,970,215,33,50500,0.62,0.69
+2026-02-01,Healthcare Operators,LinkedIn,Clinic Efficiency Report,16200,168000,5208,455,183,32,93500,0.76,0.88
+2026-02-01,Financial Services,Google Search,Compliance Analytics Search,17800,142000,7242,548,206,34,124000,0.79,0.90
+2026-03-01,Enterprise SaaS,LinkedIn,Enterprise CFO Webinar,21000,240000,8880,790,310,59,190000,0.79,0.92
+2026-03-01,Mid-Market SaaS,Google Search,CRM Migration Search,16000,196000,9996,860,275,51,113000,0.74,0.86
+2026-03-01,SMB Services,Meta,Operations Template Download,10200,465000,14415,940,185,39,43000,0.66,0.72
+2026-03-01,Ecommerce Brands,TikTok,Retention Playbook,12800,560000,16800,955,198,30,46000,0.62,0.68
+2026-03-01,Healthcare Operators,LinkedIn,Clinic Efficiency Report,16800,174000,5568,492,201,35,101000,0.77,0.89
+2026-03-01,Financial Services,Google Search,Compliance Analytics Search,18500,150000,7800,590,226,38,139000,0.80,0.91
+2026-04-01,Enterprise SaaS,LinkedIn,Enterprise CFO Webinar,22500,252000,9576,845,335,63,208000,0.79,0.92
+2026-04-01,Mid-Market SaaS,Google Search,CRM Migration Search,16800,205000,10455,910,292,54,121000,0.75,0.87
+2026-04-01,SMB Services,Meta,Operations Template Download,10800,480000,14400,930,176,36,39500,0.65,0.71
+2026-04-01,Ecommerce Brands,TikTok,Retention Playbook,13500,585000,17550,980,205,31,48000,0.62,0.68
+2026-04-01,Healthcare Operators,LinkedIn,Clinic Efficiency Report,17600,182000,6006,525,216,38,111000,0.77,0.89
+2026-04-01,Financial Services,Google Search,Compliance Analytics Search,19200,158000,8374,635,245,41,151000,0.80,0.91
+2026-05-01,Enterprise SaaS,LinkedIn,Enterprise CFO Webinar,23800,265000,10335,900,365,69,231000,0.80,0.92
+2026-05-01,Mid-Market SaaS,Google Search,CRM Migration Search,17600,214000,11128,965,310,57,130000,0.75,0.87
+2026-05-01,SMB Services,Meta,Operations Template Download,11400,496000,14880,918,168,33,37000,0.65,0.70
+2026-05-01,Ecommerce Brands,TikTok,Retention Playbook,14200,605000,18150,990,206,30,45500,0.61,0.67
+2026-05-01,Healthcare Operators,LinkedIn,Clinic Efficiency Report,18400,190000,6460,560,235,42,124000,0.78,0.90
+2026-05-01,Financial Services,Google Search,Compliance Analytics Search,20100,166000,8964,680,268,45,168000,0.81,0.92
+2026-06-01,Enterprise SaaS,LinkedIn,Enterprise CFO Webinar,25000,278000,11120,960,398,75,258000,0.80,0.93
+2026-06-01,Mid-Market SaaS,Google Search,CRM Migration Search,18400,222000,11766,1010,330,61,141000,0.75,0.87
+2026-06-01,SMB Services,Meta,Operations Template Download,12000,512000,15360,910,160,30,34000,0.64,0.69
+2026-06-01,Ecommerce Brands,TikTok,Retention Playbook,14800,628000,18840,1015,210,31,47000,0.61,0.67
+2026-06-01,Healthcare Operators,LinkedIn,Clinic Efficiency Report,19200,198000,6930,605,252,46,139000,0.78,0.90
+2026-06-01,Financial Services,Google Search,Compliance Analytics Search,21000,174000,9570,728,294,50,188000,0.81,0.92
