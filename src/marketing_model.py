@@ -66,8 +66,8 @@ def score_campaign_data(df: pd.DataFrame, weights: MarketingWeights = MarketingW
     output["Gross_Profit"] = output["Revenue"] * output["Gross_Margin"]
     output["Contribution"] = output["Gross_Profit"] - output["Spend"]
     output["ROI"] = safe_divide(output["Contribution"], output["Spend"])
-    output["Monthly_GP_Per_Customer"] = safe_divide(output["Gross_Profit"], output["Customers"])
-    output["Expected_Lifetime_Months"] = 1 / (1 - output["Retention_Rate"])
+    segment_unit_economics = build_segment_unit_economics(output)
+    output = output.merge(segment_unit_economics, on="Segment", how="left")
     output["LTV"] = output["Monthly_GP_Per_Customer"] * output["Expected_Lifetime_Months"]
     output["LTV_CAC"] = safe_divide(output["LTV"], output["CAC"])
     output["Payback_Months"] = safe_divide(output["CAC"], output["Monthly_GP_Per_Customer"])
@@ -121,20 +121,31 @@ def build_channel_summary(scored: pd.DataFrame) -> pd.DataFrame:
     return summary.sort_values("Contribution", ascending=False).reset_index(drop=True)
 
 
+def build_segment_unit_economics(scored: pd.DataFrame) -> pd.DataFrame:
+    unit_economics = scored.groupby("Segment", as_index=False).agg(
+        Gross_Profit=("Gross_Profit", "sum"),
+        Customers=("Customers", "sum"),
+        Retention_Rate=("Retention_Rate", "mean"),
+    )
+    unit_economics["Monthly_GP_Per_Customer"] = safe_divide(unit_economics["Gross_Profit"], unit_economics["Customers"])
+    unit_economics["Expected_Lifetime_Months"] = 1 / (1 - unit_economics["Retention_Rate"].clip(upper=0.99))
+    return unit_economics[["Segment", "Monthly_GP_Per_Customer", "Expected_Lifetime_Months"]]
+
+
 def build_budget_reallocation(segment_summary: pd.DataFrame) -> pd.DataFrame:
     output = segment_summary[["Segment", "Spend", "Revenue", "Contribution", "Segment_Score", "ROI", "LTV_CAC"]].copy()
     total_spend = float(output["Spend"].sum())
     opportunity = (
-        output["Segment_Score"].clip(lower=0)
-        * output["ROI"].clip(lower=0.01)
-        * output["LTV_CAC"].clip(lower=0.25)
+        output["Segment_Score"].clip(lower=0) * 0.50
+        + output["ROI"].clip(lower=0) * 100 * 0.30
+        + output["LTV_CAC"].clip(lower=0) * 0.20
     )
     if float(opportunity.sum()) == 0:
         output["Recommended_Spend"] = output["Spend"]
     else:
         output["Recommended_Spend"] = total_spend * opportunity / opportunity.sum()
     output["Budget_Change"] = output["Recommended_Spend"] - output["Spend"]
-    output["Budget_Action"] = output["Budget_Change"].apply(classify_budget_action)
+    output["Budget_Action"] = output.apply(classify_budget_action, axis=1)
     return output.sort_values("Budget_Change", ascending=False).reset_index(drop=True)
 
 
@@ -151,6 +162,11 @@ def build_executive_memo(scored: pd.DataFrame, segment_summary: pd.DataFrame, ch
     invest_segments = int((segment_summary["Recommendation"] == "Invest").sum())
     optimize_segments = int((segment_summary["Recommendation"] == "Optimize").sum())
     pause_segments = int((segment_summary["Recommendation"] == "Pause / fix economics").sum())
+    weakest_context = (
+        f"with flags: {weak_segment.Risk_Flags}"
+        if weak_segment.Risk_Flags != "None"
+        else "with no specific flags, but the weakest overall score"
+    )
 
     return f"""### Marketing ROI Executive Memo
 
@@ -158,7 +174,7 @@ def build_executive_memo(scored: pd.DataFrame, segment_summary: pd.DataFrame, ch
 
 **Best segment:** {top_segment.Segment} is the strongest segment with a {float(top_segment.Segment_Score):.1f}/100 score, {float(top_segment.ROI):.1%} ROI, {float(top_segment.LTV_CAC):.1f}x LTV:CAC, and {float(top_segment.Payback_Months):.1f} month payback.
 
-**Weakest segment:** {weak_segment.Segment} needs review because it screens at {float(weak_segment.Segment_Score):.1f}/100 with flags: {weak_segment.Risk_Flags}.
+**Weakest segment:** {weak_segment.Segment} needs review because it screens at {float(weak_segment.Segment_Score):.1f}/100 {weakest_context}.
 
 **Channel readout:** {top_channel.Channel} produced the highest contribution at {format_money(float(top_channel.Contribution))}.
 
@@ -171,13 +187,20 @@ def build_executive_memo(scored: pd.DataFrame, segment_summary: pd.DataFrame, ch
 def score_rows(df: pd.DataFrame, weights: MarketingWeights) -> pd.Series:
     total_weight = weights.roi + weights.ltv_cac + weights.conversion + weights.payback + weights.retention
     total_weight = total_weight or 1.0
+    normalized_weights = MarketingWeights(
+        roi=weights.roi / total_weight,
+        ltv_cac=weights.ltv_cac / total_weight,
+        conversion=weights.conversion / total_weight,
+        payback=weights.payback / total_weight,
+        retention=weights.retention / total_weight,
+    )
     return (
-        score_positive(df["ROI"], -0.40, 1.20) * weights.roi
-        + score_positive(df["LTV_CAC"], 0.75, 4.00) * weights.ltv_cac
-        + score_positive(df["Lead_To_Customer"], 0.02, 0.16) * weights.conversion
-        + score_negative(df["Payback_Months"], 1.0, 12.0) * weights.payback
-        + score_positive(df["Retention_Rate"], 0.60, 0.92) * weights.retention
-    ) / total_weight
+        score_positive(df["ROI"], -0.40, 1.20) * normalized_weights.roi
+        + score_positive(df["LTV_CAC"], 0.75, 4.00) * normalized_weights.ltv_cac
+        + score_positive(df["Lead_To_Customer"], 0.02, 0.16) * normalized_weights.conversion
+        + score_negative(df["Payback_Months"], 1.0, 12.0) * normalized_weights.payback
+        + score_positive(df["Retention_Rate"], 0.60, 0.92) * normalized_weights.retention
+    )
 
 
 def classify_campaign(row: pd.Series) -> str:
@@ -215,10 +238,12 @@ def build_risk_flags(row: pd.Series) -> str:
     return ", ".join(flags) if flags else "None"
 
 
-def classify_budget_action(change: float) -> str:
-    if change > 5000:
+def classify_budget_action(row: pd.Series) -> str:
+    threshold = max(float(row["Spend"]) * 0.05, 1.0)
+    change = float(row["Budget_Change"])
+    if change > threshold:
         return "Increase budget"
-    if change < -5000:
+    if change < -threshold:
         return "Reduce budget"
     return "Hold"
 

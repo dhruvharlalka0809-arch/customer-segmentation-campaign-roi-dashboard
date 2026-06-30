@@ -75,8 +75,7 @@ raw_weights = {
     "payback": payback_weight,
     "retention": retention_weight,
 }
-total_weight = sum(raw_weights.values()) or 1.0
-weights = MarketingWeights(**{key: value / total_weight for key, value in raw_weights.items()})
+weights = MarketingWeights(**raw_weights)
 
 try:
     filtered_data = active_data.copy()
@@ -123,6 +122,8 @@ with portfolio_tab:
     with left:
         st.subheader("Monthly Revenue and Spend")
         monthly = scored.groupby("Month", as_index=False).agg(Revenue=("Revenue", "sum"), Spend=("Spend", "sum"))
+        monthly = monthly.sort_values("Month")
+        monthly["Month"] = monthly["Month"].dt.strftime("%b %Y")
         st.line_chart(monthly.set_index("Month"), width="stretch")
     with right:
         st.subheader("Campaign Recommendations")
@@ -192,6 +193,6 @@ with data_tab:
     st.dataframe(filtered_data, width="stretch", hide_index=True)
     st.subheader("Scoring Methodology")
     st.write("Campaign and segment scores use fixed thresholds for contribution ROI, LTV:CAC, lead-to-customer conversion, payback months, and retention.")
-    st.write("LTV is estimated from monthly gross profit per customer and expected lifetime months using retention rate.")
+    st.write("Campaign rows use segment-level LTV economics so CAC and conversion remain campaign-specific while LTV reflects cohort-level customer quality.")
     st.write("Contribution equals gross profit less marketing spend. CAC equals spend divided by customers.")
-    st.write("Budget recommendations preserve total spend and shift dollars toward segments with stronger score, positive ROI, and stronger LTV:CAC.")
+    st.write("Budget recommendations preserve total spend and use a linear opportunity score: 50% segment score, 30% contribution ROI, and 20% LTV:CAC.")

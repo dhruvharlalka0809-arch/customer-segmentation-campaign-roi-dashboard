@@ -9,7 +9,7 @@ A Streamlit dashboard for marketing performance analysis, customer segmentation,
 - Ranks segments as Invest, Optimize, or Pause / fix economics
 - Flags marketing risks such as negative ROI, weak LTV:CAC, slow payback, low lead conversion, and retention risk
 - Compares channel contribution and customer acquisition efficiency
-- Recommends budget shifts while preserving total spend
+- Recommends budget shifts while preserving total spend using a transparent linear opportunity score
 - Generates an executive marketing ROI memo
 - Supports CSV upload for custom campaign datasets
 
@@ -38,6 +38,13 @@ streamlit run app.py
 ```bash
 python scripts/validate.py
 ```
+
+## Methodology Notes
+
+- Campaign CAC and conversion are calculated at the campaign row level.
+- LTV uses segment-level gross profit per customer and retention assumptions so customer value reflects cohort economics rather than a single campaign month.
+- Budget reallocation preserves total spend and uses a linear opportunity score: 50% segment score, 30% contribution ROI, and 20% LTV:CAC.
+- Budget action labels use a 5% of segment spend threshold instead of a fixed dollar cutoff.
 
 ## Portfolio Talking Points
 

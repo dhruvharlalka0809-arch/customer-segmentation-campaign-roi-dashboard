@@ -28,12 +28,22 @@ class MarketingModelTest(unittest.TestCase):
         for column in ["CAC", "ROAS", "ROI", "LTV_CAC", "Payback_Months", "Recommendation", "Risk_Flags"]:
             self.assertIn(column, self.scored.columns)
 
+    def test_campaign_ltv_uses_segment_level_unit_economics(self):
+        unique_ltv_by_segment = self.scored.groupby("Segment")["LTV"].nunique()
+        self.assertTrue((unique_ltv_by_segment == 1).all())
+
     def test_segment_summary_reconciles_spend(self):
         self.assertAlmostEqual(float(self.segment_summary["Spend"].sum()), float(self.scored["Spend"].sum()))
 
     def test_budget_plan_preserves_total_spend(self):
         budget_plan = build_budget_reallocation(self.segment_summary)
         self.assertAlmostEqual(float(budget_plan["Recommended_Spend"].sum()), float(self.segment_summary["Spend"].sum()))
+
+    def test_budget_actions_use_relative_thresholds(self):
+        budget_plan = build_budget_reallocation(self.segment_summary)
+        for row in budget_plan.itertuples():
+            if abs(float(row.Budget_Change)) <= float(row.Spend) * 0.05:
+                self.assertEqual(row.Budget_Action, "Hold")
 
     def test_channel_summary_reconciles_revenue(self):
         channel_summary = build_channel_summary(self.scored)
